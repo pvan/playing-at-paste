@@ -2,28 +2,6 @@
 
 
 
-struct RendererMemory
-{
-    Mesh meshBuffer1; // tempy? right now used for transforming and clipping, respectively
-    Mesh meshBuffer2; // rename these to "frame memory" or similar?
-
-    Mesh dummyMesh;
-
-    bitmapf depthBuffer;
-
-    void Init(memory_block *memory, int w, int h)
-    {
-        // TODO: what to do with MAX_VERTS.. Mesh class variable?
-        meshBuffer1.Init(memory, MAX_VERTS);
-        meshBuffer2.Init(memory, MAX_VERTS);
-        dummyMesh.Init(memory, MAX_VERTS);
-
-        depthBuffer.allocate(w, h, memory);
-    }
-
-};
-
-
 
 namespace Software {
 
@@ -930,6 +908,8 @@ static void DrawMeshDestructive(Mesh *mesh, Camera cam, bitmap *screen, Renderer
     // clip to W if clip before perspective divide
     // otherwise clip to 1 i would think
     Mesh *clippedMesh = &renderer->meshBuffer2;
+    clippedMesh->vertCount = 0;
+    clippedMesh->triCount = 0; // reset output buffer to blank todo: cleaner way?
     ClipAllTrisToW(mesh, clippedMesh);
 
 

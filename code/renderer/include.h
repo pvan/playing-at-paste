@@ -11,6 +11,8 @@
 #include "game_object.cpp"
 #include "scene.cpp"
 
+#include "memory.cpp"
+
 #include "backends/software.cpp"
 #include "renderer.cpp"
 

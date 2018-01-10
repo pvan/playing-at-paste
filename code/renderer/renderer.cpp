@@ -30,9 +30,9 @@ struct Renderer
     }
 
 
-    void InitWithBackend(memory_block *memory, int w, int h, backend_name name)
+    void init_with_backend(memory_block *memory, int w, int h, backend_name name)
     {
-        workingMem.Init(memory, w, h);
+        workingMem.init(memory, w, h);
 
         if (name == SOFTWARE)
         {

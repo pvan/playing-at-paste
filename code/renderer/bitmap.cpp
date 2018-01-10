@@ -13,6 +13,16 @@ struct bitmap
         pixels = (u32*)mem->allocate(w*sizeof(u32) * h*sizeof(u32));
     }
 
+    bool allocated_with_malloc = false;
+    void allocate_with_malloc(int w, int h)
+    {
+        if (allocated_with_malloc) if (pixels) free(pixels);
+        allocated_with_malloc = true; // getting messy
+        width = w;
+        height = h;
+        pixels = (u32*)malloc(w*sizeof(u32) * h*sizeof(u32));
+    }
+
     // float operator [](int i) { return m[i]; }
     // float operator ()(int c, int r) { return ge(c,r); }
     // float ge(int c, int r)

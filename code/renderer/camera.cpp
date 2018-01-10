@@ -118,7 +118,7 @@ struct Camera
         aspectRatio = newRatio;
     }
 
-    void Init(v3 position, float h, float p, float n, float f, float fov, bitmap *dest)
+    void Init(v3 position, float h, float p, float n, float f, float fov, int dw, int dh)
     {
         pos = position;
         heading = h;
@@ -127,13 +127,13 @@ struct Camera
         far = f;
 
         fovDegrees = fov;
-        aspectRatio = (float)dest->width/(float)dest->height;
+        aspectRatio = (float)dw/(float)dh;
 
         init = true;
     }
-    void Init(float n, float f, float fov, bitmap *dest)
+    void Init(float n, float f, float fov, int dw, int dh)
     {
-        Init(v3{0,0,0}, 0, 0, n, f, fov, dest);
+        Init(v3{0,0,0}, 0, 0, n, f, fov, dw, dh);
     }
 
     // void updateWithCADControls(Scene *scene, Camera *camera, input_state *input, float dt)

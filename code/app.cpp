@@ -19,6 +19,9 @@
 #include "renderer/include.h"
 
 
+Scene scene;
+Camera camera;
+Renderer renderer;
 
 
 d3d_textured_quad screen;
@@ -43,6 +46,8 @@ void render(float dt)
 {
     if (!running) return;
 
+    // BOOKKEEPING
+
     RECT winRect; GetWindowRect(g_hwnd, &winRect);
     int sw = winRect.right-winRect.left;
     int sh = winRect.bottom-winRect.top;
@@ -63,8 +68,50 @@ void render(float dt)
     d3d_resize_if_change(sw, sh, g_hwnd);
 
 
-    screen.fill_tex_with_pattern(dt);
+    // UPDATE
 
+    input_state input = input_poll_current_state(g_hwnd);
+
+    bool walkMode = false;
+    if (walkMode)
+    {
+        camera.updateWithFPSControls(&input, dt);
+    }
+    else
+    {
+        // camera->updateWithCADControls(scene, camera, input, dt);
+
+        v3 lookXZ = v3{0,0,1}.rotateAroundY(camera.heading);
+        v3 rightXZ = v3{1,0,0}.rotateAroundY(camera.heading);
+        v3 upDir = v3{0,1,0};//.rotateAroundY(state->playerDir);
+
+        // todo: rotate around clicked point, not origin
+        // todo: rotate entire scene together, not each obj individually
+        if (input.mouseM)
+        {
+            for (int i = 0; i < scene.gameObjectCount; i++)
+            {
+                scene.gameObjects[i].transform.rotation =
+                mat4RotY(input.deltaMouseX/50.f) * scene.gameObjects[i].transform.rotation;
+
+                scene.gameObjects[i].transform.rotation =
+                mat4RotX(-input.deltaMouseY/50.f) * scene.gameObjects[i].transform.rotation;
+            }
+        }
+
+        if (input.mouseWheelDelta != 0)
+            camera.pos.z += (float)input.mouseWheelDelta / 120.0f;
+    }
+
+
+    bitmap render_output; render_output.allocate_with_malloc(sw, sh);
+    renderer.draw_to(&scene, &camera, &render_output);
+
+    // screen.fill_tex_with_pattern(dt);
+    screen.fill_tex_with_mem((u8*)render_output.pixels, render_output.width, render_output.height);
+
+
+    // RENDER
 
     d3d_clear(0, 0, 0);
     screen.render();
@@ -97,6 +144,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (uMsg == WM_SIZE) {
         d3d_swap();
     }
+    input_read_win_msg(hwnd, uMsg, wParam, lParam);
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -123,6 +171,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 
     create_quads();
+
+
+    memory_block app_memory;
+    app_memory.create(MEGABYTES(512), (void*)TERABYTES(2));
+
+
+    // scene.init_with_malloc();
+    // camera.Init(0.1f, 10000.0f, 105, 400,400);
+    renderer.init_with_backend(&app_memory, 400, 400, SOFTWARE);
+
+
+    // game_object cube = game_object::Make(&app_memory, CUBE, {0,0,0}, 5.0f);
+    // scene.add(cube);
+
+
+        scene.init(&app_memory);
+        scene.add(game_object::Make(&app_memory, CUBE, v3{0,0,10}, 1));
+
+        camera.Init(v3{0,0,0}, 0, 0, 1, 500, 90, 400,400);
 
 
     float prev;
