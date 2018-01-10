@@ -1,13 +1,24 @@
 #include <windows.h>
 #include <windowsx.h>  // GET_X_LPARAM
-#include <stdio.h>
-#include <math.h>
-#include <assert.h>
+#include <stdio.h> // basically for sprintf
 
+
+// common functions / general style stuff used for most things below
 #include "types.h"
 #include "utils.h"
 
+// needed for renderer and also directx.cpp
+#include "math/include.h"
+
+// for now just for rendering 2d quads to screen
 #include "directx.cpp"
+
+// things the renderer depends on...
+#include "memory.cpp"
+#include "input.cpp"
+#include "renderer/include.h"
+
+
 
 
 d3d_textured_quad screen;
@@ -19,8 +30,7 @@ void create_quads()
 }
 void destroy_quads()
 {
-    u32 green = 0xff00ff00;
-    screen.create((u8*)&green,1,1, -1,-1,1,1,0);
+    screen.destroy();
 }
 
 

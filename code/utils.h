@@ -7,15 +7,17 @@
 
 
 
-int nearestInt(double in)
-{
-    return floor(in + 0.5);
-}
-i64 nearestI64(double in)
-{
-    return floor(in + 0.5);
-}
+#define LENGTH(array) (sizeof(array) / sizeof((array)[0]))
 
+#define KILOBYTES(x) (1024LL*(x))
+#define MEGABYTES(x) (1024LL*KILOBYTES(x))
+#define GIGABYTES(x) (1024LL*MEGABYTES(x))
+#define TERABYTES(x) (1024LL*GIGABYTES(x))
+
+
+// for now just use this
+#include <assert.h>
+#define ASSERT assert
 
 
 float GetWallClockSeconds()
