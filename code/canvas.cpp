@@ -4,7 +4,7 @@ struct Canvas
 {
 
     v2 pos;
-    v2 size;
+    // v2 size;
 
     bitmap *canvasBitmap;
 
@@ -14,10 +14,10 @@ struct Canvas
     v2 lastMousePos;
 
 
-    void init(v2 p, v2 s, bitmap *canv)
+    void init(v2 p, bitmap *canv)
     {
         pos = p;
-        size = s;
+        // size = s;
         canvasBitmap = canv;
     }
 
@@ -117,10 +117,10 @@ struct Canvas
     {
 
         singleButtonPaint(renderer, input->mouseL, {input->mouseX, input->mouseY},
-                          &mouseHeldL, &lastMousePos, 0xff000000);
+                          &mouseHeldL, &lastMousePos, 0xffffffff);
 
         singleButtonPaint(renderer, input->mouseR, {input->mouseX, input->mouseY},
-                          &mouseHeldR, &lastMousePos, 0xffffffff);
+                          &mouseHeldR, &lastMousePos, 0xff000000);
 
     }
 

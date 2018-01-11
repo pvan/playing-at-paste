@@ -18,6 +18,8 @@
 #include "input.cpp"
 #include "renderer/include.h"
 
+#include "canvas.cpp"
+
 
 Scene scene;
 Camera camera;
@@ -35,6 +37,15 @@ void destroy_quads()
 {
     screen.destroy();
 }
+
+Canvas iso_canv;
+Canvas top_canv;
+Canvas side_canv;
+Canvas front_canv;
+bitmap iso;
+bitmap top;
+bitmap side;
+bitmap front;
 
 
 HWND g_hwnd;
@@ -104,43 +115,75 @@ void render(float dt)
     }
 
 
-    bitmap render_output; render_output.allocate_with_malloc(sw, sh);
-    renderer.draw_to(&scene, &camera, &render_output);
+    bitmap output;
+    output.allocate_with_malloc(sw, sh);
+
+    top_canv.updateWithPaintControls(&renderer, &input, dt);
+    side_canv.updateWithPaintControls(&renderer, &input, dt);
+    front_canv.updateWithPaintControls(&renderer, &input, dt);
+    renderer.draw_to(&scene, &camera, &iso);
+
+    top_canv.render_to(&renderer, &output);
+    side_canv.render_to(&renderer, &output);
+    front_canv.render_to(&renderer, &output);
+    iso_canv.render_to(&renderer, &output);
 
     // screen.fill_tex_with_pattern(dt);
-    screen.fill_tex_with_mem((u8*)render_output.pixels, render_output.width, render_output.height);
+    screen.fill_tex_with_mem((u8*)output.pixels, output.width, output.height);
 
 
     // RENDER
 
     d3d_clear(0, 0, 0);
     screen.render();
+    // top.render();
+    // right.render();
+    // front.render();
     d3d_swap();
 
 }
 
+void init(int w, int h)
+{
+
+    assert(d3d_load());
+    assert(d3d_init(g_hwnd, w,h));
+
+
+    create_quads();
+
+
+    memory_block app_memory;
+    app_memory.create(MEGABYTES(512), (void*)TERABYTES(2));
+
+
+    renderer.init_with_backend(&app_memory, w, h, SOFTWARE);
+
+    scene.init(&app_memory);
+    scene.add(game_object::Make(&app_memory, CUBE, v3{0,0,10}, 1));
+
+    camera.Init(v3{0,0,0}, 0, 0, 1, 500, 90, w,h);
+
+
+
+    top.allocate(w/2, h/2, &app_memory);
+    side.allocate(w/2, h/2, &app_memory);
+    front.allocate(w/2, h/2, &app_memory);
+    iso.allocate(w/2, h/2, &app_memory);
+        // renderer.fill(&top, 0xffc0ffee);
+        // renderer.fill(&front, 0xfffacade);
+        // renderer.fill(&side, 0xffdecade);
+        // renderer.fill(iso, 0xfffabace);
+
+    top_canv.init(v2{0,0}, &top);
+    side_canv.init(v2{0,h/2.0f}, &side);
+    front_canv.init(v2{w/2.0f,0}, &front);
+    iso_canv.init(v2{w/2.0f,h/2.0f}, &iso);
+}
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_CLOSE) running = false;
-    if (uMsg == WM_NCHITTEST) {
-        RECT win; if (!GetWindowRect(hwnd, &win)) return HTNOWHERE;
-        POINT pos = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        POINT pad = { GetSystemMetrics(SM_CXFRAME), GetSystemMetrics(SM_CYFRAME) };
-        bool left   = pos.x < win.left   + pad.x;
-        bool right  = pos.x > win.right  - pad.x -1;  // win.right 1 pixel beyond window, right?
-        bool top    = pos.y < win.top    + pad.y;
-        bool bottom = pos.y > win.bottom - pad.y -1;
-        if (top && left)     return HTTOPLEFT;
-        if (top && right)    return HTTOPRIGHT;
-        if (bottom && left)  return HTBOTTOMLEFT;
-        if (bottom && right) return HTBOTTOMRIGHT;
-        if (left)            return HTLEFT;
-        if (right)           return HTRIGHT;
-        if (top)             return HTTOP;
-        if (bottom)          return HTBOTTOM;
-        return HTCAPTION;
-    }
     if (uMsg == WM_SIZE) {
         d3d_swap();
     }
@@ -166,30 +209,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     g_hwnd = hwnd;
 
 
-    assert(d3d_load());
-    assert(d3d_init(g_hwnd, 400,400));
-
-
-    create_quads();
-
-
-    memory_block app_memory;
-    app_memory.create(MEGABYTES(512), (void*)TERABYTES(2));
-
-
-    // scene.init_with_malloc();
-    // camera.Init(0.1f, 10000.0f, 105, 400,400);
-    renderer.init_with_backend(&app_memory, 400, 400, SOFTWARE);
-
-
-    // game_object cube = game_object::Make(&app_memory, CUBE, {0,0,0}, 5.0f);
-    // scene.add(cube);
-
-
-        scene.init(&app_memory);
-        scene.add(game_object::Make(&app_memory, CUBE, v3{0,0,10}, 1));
-
-        camera.Init(v3{0,0,0}, 0, 0, 1, 500, 90, 400,400);
+    init(400,400);
 
 
     float prev;
