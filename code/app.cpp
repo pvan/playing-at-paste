@@ -15,8 +15,10 @@
 
 // things the renderer depends on...
 #include "memory.cpp"
-#include "input.cpp"
 #include "renderer/include.h"
+
+// need renderer
+#include "input.cpp"
 
 #include "canvas.cpp"
 
@@ -86,7 +88,8 @@ void render(float dt)
     bool walkMode = false;
     if (walkMode)
     {
-        camera.updateWithFPSControls(&input, dt);
+        // camera.updateWithFPSControls(&input, dt);
+        updateCameraWithFPSControls(&camera, &input, dt);
     }
     else
     {
@@ -118,14 +121,14 @@ void render(float dt)
     bitmap output;
     output.allocate_with_malloc(sw, sh);
 
-    top_canv.updateWithPaintControls(&renderer, &input, dt);
-    side_canv.updateWithPaintControls(&renderer, &input, dt);
-    front_canv.updateWithPaintControls(&renderer, &input, dt);
+    // top_canv.updateWithPaintControls(&renderer, &input, dt);
+    // side_canv.updateWithPaintControls(&renderer, &input, dt);
+    // front_canv.updateWithPaintControls(&renderer, &input, dt);
     renderer.draw_to(&scene, &camera, &iso);
 
-    top_canv.render_to(&renderer, &output);
-    side_canv.render_to(&renderer, &output);
-    front_canv.render_to(&renderer, &output);
+    // top_canv.render_to(&renderer, &output);
+    // side_canv.render_to(&renderer, &output);
+    // front_canv.render_to(&renderer, &output);
     iso_canv.render_to(&renderer, &output);
 
     // screen.fill_tex_with_pattern(dt);

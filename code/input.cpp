@@ -248,3 +248,143 @@ static input_state input_poll_current_state(HWND window)
     return result;
 }
 
+
+
+
+
+
+// make some kind of FPS object with or on top of a camear?
+// or even just some static func?
+void updateCameraWithFPSControls(Camera *camera, input_state *i, float dt)//, fps_bindings bindings)
+{
+
+    camera->updateWithFPSControls(i->left, i->right, i->up, i->down, i->shift, i->w, i->s, i->a, i->d,
+                                  i->space, i->ctrl, i->squareL, i->squareR, i->deltaMouseX, i->deltaMouseY, dt);
+
+    // ASSERT(camera->init);
+
+    // float xSens = 0.5f;
+    // float ySens = 0.5f;
+
+    // // if (lockMouseToCenter && mouseLookOn) {
+    //     camera->heading += (input->deltaMouseX*xSens/100);
+    //     camera->pitch -= (input->deltaMouseY*ySens/50);
+    // // }
+
+    // if (input->left) camera->heading -= camera->xSens/3;
+    // if (input->right) camera->heading += camera->xSens/3;
+    // if (input->up) camera->pitch += camera->ySens/3;
+    // if (input->down) camera->pitch -= camera->ySens/3;
+
+
+    // float moveSpeed = 40.0f;
+    // if (input->shift) moveSpeed *= 3;
+    // float posDelta = moveSpeed * dt;
+
+    // if (camera->heading > PI) camera->heading -= 2*PI;
+    // if (camera->heading < -PI) camera->heading += 2*PI;
+
+    // v3 lookXZ = v3{0,0,1}.rotateAroundY(camera->heading);
+    // v3 rightXZ = v3{1,0,0}.rotateAroundY(camera->heading);
+    // v3 upDir = v3{0,1,0};//.rotateAroundY(heading);
+
+    // if (input->w) { pos = pos+(lookXZ*posDelta); }
+    // if (input->s) { pos = pos-(lookXZ*posDelta); }
+    // if (input->a) { pos = pos-(rightXZ*posDelta); }
+    // if (input->d) { pos = pos+(rightXZ*posDelta); }
+    // if (input->space) { pos = pos+(upDir*posDelta); }
+    // if (input->ctrl) { pos = pos-(upDir*posDelta); }
+
+
+    // // if (playerPos.y < -playerHeight) playerPos.y = -playerHeight;
+    // if (pitch < -PI/2) pitch = -PI/2;
+    // if (pitch > PI/2) pitch = PI/2;
+
+    // if (input->squareL) camera->setFov(camera->fovDegrees-1);
+    // if (input->squareR) camera->setFov(camera->fovDegrees+1);
+
+}
+
+void singleButtonPaint(Renderer *renderer, bitmap *dest, bool mDown, bool mWasDown, v2 pos, v2 prevPos, u32 col)
+{
+    if (mDown)
+    {
+        // float x = mPos.x - pos.x;
+        // float y = mPos.y - pos.y;
+        float x = pos.x;
+        float y = pos.y;
+        renderer->draw_box_at(dest, x, y, col);
+
+        if (mWasDown)
+        {
+
+            if (bool glitchyButCoolBoxLines = false)
+            {
+                float minX = min(prevPos.x, x);
+                float maxX = max(prevPos.x, x);
+                float minY = min(prevPos.y, y);
+                float maxY = max(prevPos.y, y);
+                for (float ix = minX; ix < maxX; ix++)
+                {
+                    for (float iy = minY; iy < maxY; iy++)
+                    {
+                        renderer->draw_box_at(dest, ix, iy, col);
+                    }
+                }
+            }
+            else
+            {
+                // line renderer loop copied to here
+                // add render_shape from p1 to p2 in renderer?
+
+                v2 start = prevPos;
+                // v2 end = mousePos - pos; // a bit awkward?
+                v2 end = pos;
+                v2 delta = end-start;
+
+
+                int steps = ceil(max(absf(delta.x), absf(delta.y)));
+
+                if (steps == 0)
+                {
+                    //SetPixel(start, screen, col);
+                    return;
+                }
+
+                float xInc = delta.x/(float)steps;
+                float yInc = delta.y/(float)steps;
+
+                v2 draw = start;
+                for (int i = 0; i < steps; i++)
+                {
+                    draw.x += xInc;
+                    draw.y += yInc;
+
+                    // SetPixel(draw, screen, col);
+                    renderer->draw_box_at(dest, draw.x, draw.y, col);
+                }
+
+                if (bool forceIncludeEndPoints = false)
+                {
+                    // SetPixel(start, screen, col);
+                    // SetPixel(end, screen, col);
+                    renderer->draw_box_at(dest, start.x, start.y, col);
+                    renderer->draw_box_at(dest, end.x, end.y, col);
+                }
+
+
+
+
+            }
+        }
+    }
+}
+
+void updateBitmapWithPaintControls(Renderer *renderer, bitmap *dest, input_state *i, input_state *pi, float dt)
+{
+    singleButtonPaint(renderer, dest, i->mouseL, pi->mouseL, {i->mouseX,i->mouseY}, {pi->mouseX,pi->mouseY}, 0xffffffff);
+    singleButtonPaint(renderer, dest, i->mouseR, pi->mouseR, {i->mouseX,i->mouseY}, {pi->mouseX,pi->mouseY}, 0xff000000);
+}
+
+
+

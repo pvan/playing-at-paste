@@ -48,6 +48,20 @@ struct Renderer
         }
     }
 
+
+    void draw_box_at(bitmap *dest, float x, float y, u32 col)
+    {
+        int size = 4;
+        for (int i = -size; i <= size; i++)
+        {
+            for (int j = -size; j <= size; j++)
+            {
+                set_pixel(x+i, y+j, dest, col);
+            }
+        }
+    }
+
+
 };
 
 

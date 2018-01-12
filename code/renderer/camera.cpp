@@ -142,7 +142,10 @@ struct Camera
 
     // make some kind of FPS object with or on top of a camear?
     // or even just some static func?
-    void updateWithFPSControls(input_state *input, float dt)//, fps_bindings bindings)
+    // pass in fps_bindings bindings? na keep it simple
+    void updateWithFPSControls(bool left, bool right, bool up, bool down, bool shift,
+                               bool w, bool s, bool a, bool d, bool space, bool ctrl,
+                               bool fovM, bool fovP, float deltaMouseX, float deltaMouseY, float dt)
     {
         ASSERT(init);
 
@@ -150,18 +153,18 @@ struct Camera
         float ySens = 0.5f;
 
         // if (lockMouseToCenter && mouseLookOn) {
-            heading += (input->deltaMouseX*xSens/100);
-            pitch -= (input->deltaMouseY*ySens/50);
+            heading += (deltaMouseX*xSens/100);
+            pitch -= (deltaMouseY*ySens/50);
         // }
 
-        if (input->left) heading -= xSens/3;
-        if (input->right) heading += xSens/3;
-        if (input->up) pitch += ySens/3;
-        if (input->down) pitch -= ySens/3;
+        if (left) heading -= xSens/3;
+        if (right) heading += xSens/3;
+        if (up) pitch += ySens/3;
+        if (down) pitch -= ySens/3;
 
 
         float moveSpeed = 40.0f;
-        if (input->shift) moveSpeed *= 3;
+        if (shift) moveSpeed *= 3;
         float posDelta = moveSpeed * dt;
 
         if (heading > PI) heading -= 2*PI;
@@ -171,21 +174,20 @@ struct Camera
         v3 rightXZ = v3{1,0,0}.rotateAroundY(heading);
         v3 upDir = v3{0,1,0};//.rotateAroundY(heading);
 
-        if (input->w) { pos = pos+(lookXZ*posDelta); }
-        if (input->s) { pos = pos-(lookXZ*posDelta); }
-        if (input->a) { pos = pos-(rightXZ*posDelta); }
-        if (input->d) { pos = pos+(rightXZ*posDelta); }
-        if (input->space) { pos = pos+(upDir*posDelta); }
-        if (input->ctrl) { pos = pos-(upDir*posDelta); }
+        if (w) { pos = pos+(lookXZ*posDelta); }
+        if (s) { pos = pos-(lookXZ*posDelta); }
+        if (a) { pos = pos-(rightXZ*posDelta); }
+        if (d) { pos = pos+(rightXZ*posDelta); }
+        if (space) { pos = pos+(upDir*posDelta); }
+        if (ctrl) { pos = pos-(upDir*posDelta); }
 
 
         // if (playerPos.y < -playerHeight) playerPos.y = -playerHeight;
         if (pitch < -PI/2) pitch = -PI/2;
         if (pitch > PI/2) pitch = PI/2;
 
-        if (input->squareL) setFov(fovDegrees-1);
-        if (input->squareR) setFov(fovDegrees+1);
-
+        if (fovM) setFov(fovDegrees-1);
+        if (fovP) setFov(fovDegrees+1);
 
     }
 
