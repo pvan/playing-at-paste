@@ -172,9 +172,9 @@ static input_state input_poll_current_state(HWND window)
     {
         if (ScreenToClient(window, &p))
         {
-            int PIXEL_SIZE = 1;
-            result.mouseX = p.x / PIXEL_SIZE;
-            result.mouseY = p.y / PIXEL_SIZE;
+            // int PIXEL_SIZE = 1;
+            result.mouseX = p.x;// / PIXEL_SIZE;
+            result.mouseY = p.y;// / PIXEL_SIZE;
 
             // only set delta if lastP is initialized
             if (input_lastMousePoint.x != -1 && input_lastMousePoint.y != -1 && wasWinActiveLastFrame)
@@ -290,6 +290,8 @@ void updateCameraWithFPSControls(Camera *camera, input_state *i, float dt)//, fp
                                   i->w, i->s, i->a, i->d, i->space, i->ctrl,
                                   i->squareL, i->squareR, i->deltaMouseX, i->deltaMouseY, dt);
 }
+
+
 
 void singleButtonPaint(Renderer *renderer, bitmap *dest, bool mDown, bool mWasDown, v2 pos, v2 prevPos, u32 col)
 {

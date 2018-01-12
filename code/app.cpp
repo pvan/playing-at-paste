@@ -24,6 +24,7 @@
 Scene scene;
 Camera camera;
 Renderer renderer;
+input_state previnput;
 
 
 d3d_textured_quad screen;
@@ -38,10 +39,6 @@ void destroy_quads()
     screen.destroy();
 }
 
-// Canvas iso_canv;
-// Canvas top_canv;
-// Canvas side_canv;
-// Canvas front_canv;
 bitmap iso;
 bitmap top;
 bitmap side;
@@ -102,8 +99,11 @@ void render(float dt)
     // top_canv.updateWithPaintControls(&renderer, &input, dt);
     // side_canv.updateWithPaintControls(&renderer, &input, dt);
     // front_canv.updateWithPaintControls(&renderer, &input, dt);
-    renderer.fill(&iso, 0); // for now clear here, should draw_to do it though?
-    renderer.draw_to(&scene, &camera, &iso);
+
+    // renderer.fill(&iso, 0); // for now clear here, should draw_to do it though?
+    // renderer.draw_to(&scene, &camera, &iso);
+
+    updateBitmapWithPaintControls(&renderer, &iso, &input, &previnput, dt);
 
     // top_canv.render_to(&renderer, &output);
     // side_canv.render_to(&renderer, &output);
@@ -112,6 +112,8 @@ void render(float dt)
 
     // screen.fill_tex_with_pattern(dt);
     screen.fill_tex_with_mem((u8*)iso.pixels, iso.width, iso.height);
+
+    previnput = input;
 
 
     // RENDER
@@ -148,10 +150,11 @@ void init(int w, int h)
 
 
 
-    top.allocate(w/2, h/2, &app_memory);
-    side.allocate(w/2, h/2, &app_memory);
-    front.allocate(w/2, h/2, &app_memory);
-    iso.allocate(w/2, h/2, &app_memory);
+    // top.allocate(w/2, h/2, &app_memory);
+    // side.allocate(w/2, h/2, &app_memory);
+    // front.allocate(w/2, h/2, &app_memory);
+    // iso.allocate(w/2, h/2, &app_memory);
+    iso.allocate(w, h, &app_memory);
         // renderer.fill(&top, 0xffc0ffee);
         // renderer.fill(&front, 0xfffacade);
         // renderer.fill(&side, 0xffdecade);
@@ -161,6 +164,8 @@ void init(int w, int h)
     // side_canv.init(v2{0,h/2.0f}, &side);
     // front_canv.init(v2{w/2.0f,0}, &front);
     // iso_canv.init(v2{w/2.0f,h/2.0f}, &iso);
+
+    previnput = input_poll_current_state(g_hwnd);
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -181,11 +186,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wc.lpszClassName = "playing at paste";
     if (!RegisterClass(&wc)) { MessageBox(0, "RegisterClass failed", 0, 0); return 1; }
 
+    RECT startrect = {0,0,400,400};
+    AdjustWindowRectEx(&startrect, WS_OVERLAPPEDWINDOW, 0, 0);
+
     HWND hwnd = CreateWindowEx(
         0, wc.lpszClassName, "title",
         // WS_POPUP | WS_VISIBLE,
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        CW_USEDEFAULT, CW_USEDEFAULT, 400, 400, 0, 0, hInstance, 0);
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        startrect.right-startrect.left, startrect.bottom-startrect.top,
+        0, 0, hInstance, 0);
     if (!hwnd) { MessageBox(0, "CreateWindowEx failed", 0, 0); return 1; }
 
     g_hwnd = hwnd;
