@@ -91,9 +91,9 @@ void render(float dt)
 
     renderer.fill(&iso, 0); // for now clear here, should draw_to do it though?
     renderer.draw_to(&scene, &camera, &iso);
-    updateBitmapWithPaintControls(&renderer, &top, &input, &previnput, dt);
-    updateBitmapWithPaintControls(&renderer, &side, &input, &previnput, dt);
-    updateBitmapWithPaintControls(&renderer, &front, &input, &previnput, dt);
+    updateBitmapWithPaintControls(&renderer, &top,   {0,0}      , &input, &previnput, dt);
+    updateBitmapWithPaintControls(&renderer, &side,  {sw/2.0f,0}, &input, &previnput, dt);
+    updateBitmapWithPaintControls(&renderer, &front, {0,sh/2.0f}, &input, &previnput, dt);
 
     renderer.fill(&screen, 0); // for now clear here
     renderer.copy_to(&top,   &screen, {0,0}            , {-1,-1,-1,-1}, 1);
@@ -146,10 +146,6 @@ void init(int w, int h)
     front.allocate(w/2, h/2, &app_memory);
     iso.allocate(w/2, h/2, &app_memory);
     screen.allocate(w, h, &app_memory);
-        // renderer.fill(&top, 0xffc0ffee);
-        // renderer.fill(&front, 0xfffacade);
-        // renderer.fill(&side, 0xffdecade);
-        // renderer.fill(iso, 0xfffabace);
 
     previnput = input_poll_current_state(g_hwnd);
 }

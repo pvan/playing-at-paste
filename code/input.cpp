@@ -368,10 +368,12 @@ void singleButtonPaint(Renderer *renderer, bitmap *dest, bool mDown, bool mWasDo
     }
 }
 
-void updateBitmapWithPaintControls(Renderer *renderer, bitmap *dest, input_state *i, input_state *pi, float dt)
+void updateBitmapWithPaintControls(Renderer *renderer, bitmap *dest, v2 moffset, input_state *i, input_state *pi, float dt)
 {
-    singleButtonPaint(renderer, dest, i->mouseL, pi->mouseL, {i->mouseX,i->mouseY}, {pi->mouseX,pi->mouseY}, 0xffffffff);
-    singleButtonPaint(renderer, dest, i->mouseR, pi->mouseR, {i->mouseX,i->mouseY}, {pi->mouseX,pi->mouseY}, 0xff000000);
+    v2 thismpos = {i->mouseX, i->mouseY};
+    v2 lastmpos = {pi->mouseX, pi->mouseY};
+    singleButtonPaint(renderer, dest, i->mouseL, pi->mouseL, thismpos-moffset, lastmpos-moffset, 0xffffffff);
+    singleButtonPaint(renderer, dest, i->mouseR, pi->mouseR, thismpos-moffset, lastmpos-moffset, 0xff000000);
 }
 
 
