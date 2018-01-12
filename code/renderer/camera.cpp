@@ -136,13 +136,8 @@ struct Camera
         Init(v3{0,0,0}, 0, 0, n, f, fov, dw, dh);
     }
 
-    // void updateWithCADControls(Scene *scene, Camera *camera, input_state *input, float dt)
-    // {
-    // }
 
-    // make some kind of FPS object with or on top of a camear?
-    // or even just some static func?
-    // pass in fps_bindings bindings? na keep it simple
+    // just keep the args flat here so we don't need any weird structs to call this
     void updateWithFPSControls(bool left, bool right, bool up, bool down, bool shift,
                                bool w, bool s, bool a, bool d, bool space, bool ctrl,
                                bool fovM, bool fovP, float deltaMouseX, float deltaMouseY, float dt)

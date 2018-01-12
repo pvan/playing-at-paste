@@ -20,8 +20,6 @@
 // need renderer
 #include "input.cpp"
 
-#include "canvas.cpp"
-
 
 Scene scene;
 Camera camera;
@@ -40,10 +38,10 @@ void destroy_quads()
     screen.destroy();
 }
 
-Canvas iso_canv;
-Canvas top_canv;
-Canvas side_canv;
-Canvas front_canv;
+// Canvas iso_canv;
+// Canvas top_canv;
+// Canvas side_canv;
+// Canvas front_canv;
 bitmap iso;
 bitmap top;
 bitmap side;
@@ -93,46 +91,27 @@ void render(float dt)
     }
     else
     {
-        // camera->updateWithCADControls(scene, camera, input, dt);
+        updateCameraWithCADControls(&camera, &scene, &input, dt);
 
-        v3 lookXZ = v3{0,0,1}.rotateAroundY(camera.heading);
-        v3 rightXZ = v3{1,0,0}.rotateAroundY(camera.heading);
-        v3 upDir = v3{0,1,0};//.rotateAroundY(state->playerDir);
-
-        // todo: rotate around clicked point, not origin
-        // todo: rotate entire scene together, not each obj individually
-        if (input.mouseM)
-        {
-            for (int i = 0; i < scene.gameObjectCount; i++)
-            {
-                scene.gameObjects[i].transform.rotation =
-                mat4RotY(input.deltaMouseX/50.f) * scene.gameObjects[i].transform.rotation;
-
-                scene.gameObjects[i].transform.rotation =
-                mat4RotX(-input.deltaMouseY/50.f) * scene.gameObjects[i].transform.rotation;
-            }
-        }
-
-        if (input.mouseWheelDelta != 0)
-            camera.pos.z += (float)input.mouseWheelDelta / 120.0f;
     }
 
 
-    bitmap output;
-    output.allocate_with_malloc(sw, sh);
+    // bitmap output;
+    // output.allocate_with_malloc(sw, sh);
 
     // top_canv.updateWithPaintControls(&renderer, &input, dt);
     // side_canv.updateWithPaintControls(&renderer, &input, dt);
     // front_canv.updateWithPaintControls(&renderer, &input, dt);
+    renderer.fill(&iso, 0); // for now clear here, should draw_to do it though?
     renderer.draw_to(&scene, &camera, &iso);
 
     // top_canv.render_to(&renderer, &output);
     // side_canv.render_to(&renderer, &output);
     // front_canv.render_to(&renderer, &output);
-    iso_canv.render_to(&renderer, &output);
+    // iso_canv.render_to(&renderer, &output);
 
     // screen.fill_tex_with_pattern(dt);
-    screen.fill_tex_with_mem((u8*)output.pixels, output.width, output.height);
+    screen.fill_tex_with_mem((u8*)iso.pixels, iso.width, iso.height);
 
 
     // RENDER
@@ -178,10 +157,10 @@ void init(int w, int h)
         // renderer.fill(&side, 0xffdecade);
         // renderer.fill(iso, 0xfffabace);
 
-    top_canv.init(v2{0,0}, &top);
-    side_canv.init(v2{0,h/2.0f}, &side);
-    front_canv.init(v2{w/2.0f,0}, &front);
-    iso_canv.init(v2{w/2.0f,h/2.0f}, &iso);
+    // top_canv.init(v2{0,0}, &top);
+    // side_canv.init(v2{0,h/2.0f}, &side);
+    // front_canv.init(v2{w/2.0f,0}, &front);
+    // iso_canv.init(v2{w/2.0f,h/2.0f}, &iso);
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
