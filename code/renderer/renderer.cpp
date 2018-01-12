@@ -17,7 +17,7 @@ struct Renderer
     RendererMemory workingMem;
 
 
-    void (*copy_to)(bitmap*, bitmap*, v2, Rect, float);
+    void (*copy_to)(bitmap *s, bitmap *d, v2 dpos, Rect srect, float shrink);
     void (*fill)(bitmap*, u32);
     void (*set_pixel)(int, int, bitmap*, u32);
 

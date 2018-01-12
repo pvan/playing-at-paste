@@ -27,22 +27,23 @@ Renderer renderer;
 input_state previnput;
 
 
-d3d_textured_quad screen;
+d3d_textured_quad screenquad;
 void create_quads()
 {
     // u32 green = 0xff00ff00;
     // screen.create((u8*)&green,1,1, -1,-1,1,1,0);
-    screen.create(0,400,400, -1,-1,1,1,0);
+    screenquad.create(0,400,400, -1,-1,1,1,0);
 }
 void destroy_quads()
 {
-    screen.destroy();
+    screenquad.destroy();
 }
 
 bitmap iso;
 bitmap top;
 bitmap side;
 bitmap front;
+bitmap screen;
 
 
 HWND g_hwnd;
@@ -56,7 +57,7 @@ void render(float dt)
 
     // BOOKKEEPING
 
-    RECT winRect; GetWindowRect(g_hwnd, &winRect);
+    RECT winRect; GetClientRect(g_hwnd, &winRect);
     int sw = winRect.right-winRect.left;
     int sh = winRect.bottom-winRect.top;
 
@@ -81,37 +82,27 @@ void render(float dt)
     input_state input = input_poll_current_state(g_hwnd);
 
     bool walkMode = false;
-    if (walkMode)
-    {
-        // camera.updateWithFPSControls(&input, dt);
+    if (walkMode) {
         updateCameraWithFPSControls(&camera, &input, dt);
-    }
-    else
-    {
+    } else {
         updateCameraWithCADControls(&camera, &scene, &input, dt);
-
     }
 
 
-    // bitmap output;
-    // output.allocate_with_malloc(sw, sh);
+    renderer.fill(&iso, 0); // for now clear here, should draw_to do it though?
+    renderer.draw_to(&scene, &camera, &iso);
+    updateBitmapWithPaintControls(&renderer, &top, &input, &previnput, dt);
+    updateBitmapWithPaintControls(&renderer, &side, &input, &previnput, dt);
+    updateBitmapWithPaintControls(&renderer, &front, &input, &previnput, dt);
 
-    // top_canv.updateWithPaintControls(&renderer, &input, dt);
-    // side_canv.updateWithPaintControls(&renderer, &input, dt);
-    // front_canv.updateWithPaintControls(&renderer, &input, dt);
+    renderer.fill(&screen, 0); // for now clear here
+    renderer.copy_to(&top,   &screen, {0,0}            , {-1,-1,-1,-1}, 1);
+    renderer.copy_to(&side,  &screen, {sw/2.0f,0}      , {-1,-1,-1,-1}, 1);
+    renderer.copy_to(&front, &screen, {0,sh/2.0f}      , {-1,-1,-1,-1}, 1);
+    renderer.copy_to(&iso,   &screen, {sw/2.0f,sh/2.0f}, {-1,-1,-1,-1}, 1);
 
-    // renderer.fill(&iso, 0); // for now clear here, should draw_to do it though?
-    // renderer.draw_to(&scene, &camera, &iso);
 
-    updateBitmapWithPaintControls(&renderer, &iso, &input, &previnput, dt);
-
-    // top_canv.render_to(&renderer, &output);
-    // side_canv.render_to(&renderer, &output);
-    // front_canv.render_to(&renderer, &output);
-    // iso_canv.render_to(&renderer, &output);
-
-    // screen.fill_tex_with_pattern(dt);
-    screen.fill_tex_with_mem((u8*)iso.pixels, iso.width, iso.height);
+    screenquad.fill_tex_with_mem((u8*)screen.pixels, screen.width, screen.height);
 
     previnput = input;
 
@@ -119,7 +110,7 @@ void render(float dt)
     // RENDER
 
     d3d_clear(0, 0, 0);
-    screen.render();
+    screenquad.render();
     // top.render();
     // right.render();
     // front.render();
@@ -150,20 +141,15 @@ void init(int w, int h)
 
 
 
-    // top.allocate(w/2, h/2, &app_memory);
-    // side.allocate(w/2, h/2, &app_memory);
-    // front.allocate(w/2, h/2, &app_memory);
-    // iso.allocate(w/2, h/2, &app_memory);
-    iso.allocate(w, h, &app_memory);
+    top.allocate(w/2, h/2, &app_memory);
+    side.allocate(w/2, h/2, &app_memory);
+    front.allocate(w/2, h/2, &app_memory);
+    iso.allocate(w/2, h/2, &app_memory);
+    screen.allocate(w, h, &app_memory);
         // renderer.fill(&top, 0xffc0ffee);
         // renderer.fill(&front, 0xfffacade);
         // renderer.fill(&side, 0xffdecade);
         // renderer.fill(iso, 0xfffabace);
-
-    // top_canv.init(v2{0,0}, &top);
-    // side_canv.init(v2{0,h/2.0f}, &side);
-    // front_canv.init(v2{w/2.0f,0}, &front);
-    // iso_canv.init(v2{w/2.0f,h/2.0f}, &iso);
 
     previnput = input_poll_current_state(g_hwnd);
 }
