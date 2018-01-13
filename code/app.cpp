@@ -104,23 +104,29 @@ void render(float dt)
     renderer.copy_to(&iso,   &screen, {sw/2.0f,sh/2.0f}, {-1,-1,-1,-1}, 1);
 
 
-    v2i *outList = (v2i*)malloc(1000 * sizeof(v2i));
-    int outCount;
-    FindBoundryPoints(top.pixels,top.width,top.height, outList,1000,&outCount);
-    PRINT("%i\n",outCount);
-    for (int i = 0; i < outCount; i++)
-    {
-        renderer.set_pixel(outList[i].x, outList[i].y, &top, 0xffff0000);
-    }
-    free(outList);
+    v2i *toptrace = (v2i*)malloc(1000 * sizeof(v2i)); int toptracecount;
+    FindBoundryPoints(top.pixels,top.width,top.height, toptrace,1000,&toptracecount);
+    for (int i = 0; i < toptracecount; i++) { renderer.set_pixel(toptrace[i].x, toptrace[i].y, &top, 0xffff0000); }
 
-    screenquad.fill_tex_with_mem((u8*)screen.pixels, screen.width, screen.height);
-    // screenquad.fill_tex_with_mem((u8*)top.pixels, top.width, top.height);
+    v2i *sidetrace = (v2i*)malloc(1000 * sizeof(v2i)); int sidetracecount;
+    FindBoundryPoints(side.pixels,side.width,side.height, sidetrace,1000,&sidetracecount);
+    for (int i = 0; i < sidetracecount; i++) { renderer.set_pixel(sidetrace[i].x, sidetrace[i].y, &side, 0xff00ff00); }
+
+    v2i *fronttrace = (v2i*)malloc(1000 * sizeof(v2i)); int fronttracecount;
+    FindBoundryPoints(front.pixels,front.width,front.height, fronttrace,1000,&fronttracecount);
+    for (int i = 0; i < fronttracecount; i++) { renderer.set_pixel(fronttrace[i].x, fronttrace[i].y, &front, 0xff0000ff); }
+
+    free(toptrace);
+    free(sidetrace);
+    free(fronttrace);
+
 
     previnput = input;
 
 
     // RENDER
+
+    screenquad.fill_tex_with_mem((u8*)screen.pixels, screen.width, screen.height);
 
     d3d_clear(0, 0, 0);
     screenquad.render();
@@ -128,7 +134,6 @@ void render(float dt)
     // right.render();
     // front.render();
     d3d_swap();
-
 }
 
 void init(int w, int h)
