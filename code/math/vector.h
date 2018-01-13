@@ -1,6 +1,17 @@
 
 
 
+struct v2i
+{
+    int x;
+    int y;
+    void operator=(v2i b) { x=b.x; y=b.y; }
+};
+bool operator==(v2i a, v2i b) { return a.x==b.x && a.y==b.y; }
+bool operator!=(v2i a, v2i b) { return !(a==b); }
+v2i operator-(v2i a, v2i b) { return {a.x-b.x, a.y-b.y}; }
+v2i operator+(v2i a, v2i b) { return {a.x+b.x, a.y+b.y}; }
+
 struct v2
 {
     float x;

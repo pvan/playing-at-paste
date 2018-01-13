@@ -17,8 +17,10 @@
 #include "memory.cpp"
 #include "renderer/include.h"
 
-// need renderer
+// now this needs renderer rather than vice versa
 #include "input.cpp"
+
+#include "trace.cpp"
 
 
 Scene scene;
@@ -102,7 +104,18 @@ void render(float dt)
     renderer.copy_to(&iso,   &screen, {sw/2.0f,sh/2.0f}, {-1,-1,-1,-1}, 1);
 
 
+    v2i *outList = (v2i*)malloc(1000 * sizeof(v2i));
+    int outCount;
+    FindBoundryPoints(top.pixels,top.width,top.height, outList,1000,&outCount);
+    PRINT("%i\n",outCount);
+    for (int i = 0; i < outCount; i++)
+    {
+        renderer.set_pixel(outList[i].x, outList[i].y, &top, 0xffff0000);
+    }
+    free(outList);
+
     screenquad.fill_tex_with_mem((u8*)screen.pixels, screen.width, screen.height);
+    // screenquad.fill_tex_with_mem((u8*)top.pixels, top.width, top.height);
 
     previnput = input;
 
