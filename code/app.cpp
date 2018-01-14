@@ -106,19 +106,44 @@ void render(float dt)
 
     v2i *toptrace = (v2i*)malloc(1000 * sizeof(v2i)); int toptracecount;
     FindBoundryPoints(top.pixels,top.width,top.height, toptrace,1000,&toptracecount);
-    for (int i = 0; i < toptracecount; i++) { renderer.set_pixel(toptrace[i].x, toptrace[i].y, &top, 0xffff0000); }
 
     v2i *sidetrace = (v2i*)malloc(1000 * sizeof(v2i)); int sidetracecount;
     FindBoundryPoints(side.pixels,side.width,side.height, sidetrace,1000,&sidetracecount);
-    for (int i = 0; i < sidetracecount; i++) { renderer.set_pixel(sidetrace[i].x, sidetrace[i].y, &side, 0xff00ff00); }
 
     v2i *fronttrace = (v2i*)malloc(1000 * sizeof(v2i)); int fronttracecount;
     FindBoundryPoints(front.pixels,front.width,front.height, fronttrace,1000,&fronttracecount);
-    for (int i = 0; i < fronttracecount; i++) { renderer.set_pixel(fronttrace[i].x, fronttrace[i].y, &front, 0xff0000ff); }
 
-    free(toptrace);
-    free(sidetrace);
-    free(fronttrace);
+    bitmap topcopy = top;
+    topcopy.pixels = (u32*)malloc(top.width*top.height * sizeof(u32));
+    for (int i = 0; i < top.width*top.height; i++) { topcopy.pixels[i] = top.pixels[i]; }
+    for (int i = 0; i < toptracecount; i++) { renderer.set_pixel(toptrace[i].x, toptrace[i].y, &topcopy, 0xffff0000); }
+
+
+    // for (int i = 0; i < toptracecount; i++) { renderer.set_pixel(toptrace[i].x, toptrace[i].y, &top, 0xffff0000); }
+    // for (int i = 0; i < sidetracecount; i++) { renderer.set_pixel(sidetrace[i].x, sidetrace[i].y, &side, 0xff00ff00); }
+    // for (int i = 0; i < fronttracecount; i++) { renderer.set_pixel(fronttrace[i].x, fronttrace[i].y, &front, 0xff0000ff); }
+
+
+    renderer.set_pixel(toptrace[0].x+0, toptrace[0].y+0, &topcopy, 0xff0000ff);
+    renderer.set_pixel(toptrace[0].x-1, toptrace[0].y-1, &topcopy, 0xff0000ff);
+    renderer.set_pixel(toptrace[0].x+1, toptrace[0].y-1, &topcopy, 0xff0000ff);
+    renderer.set_pixel(toptrace[0].x-1, toptrace[0].y+1, &topcopy, 0xff0000ff);
+    renderer.set_pixel(toptrace[0].x+1, toptrace[0].y+1, &topcopy, 0xff0000ff);
+
+    renderer.set_pixel(toptrace[toptracecount-1].x+0, toptrace[toptracecount-1].y+0, &topcopy, 0xff00ffff);
+    renderer.set_pixel(toptrace[toptracecount-1].x-1, toptrace[toptracecount-1].y-1, &topcopy, 0xff00ffff);
+    renderer.set_pixel(toptrace[toptracecount-1].x+1, toptrace[toptracecount-1].y-1, &topcopy, 0xff00ffff);
+    renderer.set_pixel(toptrace[toptracecount-1].x-1, toptrace[toptracecount-1].y+1, &topcopy, 0xff00ffff);
+    renderer.set_pixel(toptrace[toptracecount-1].x+1, toptrace[toptracecount-1].y+1, &topcopy, 0xff00ffff);
+
+
+    v2i p1 = DouglasPeuckerSimplify(toptrace, toptracecount, toptrace, toptracecount, &toptracecount);
+    renderer.set_pixel(p1.x,   p1.y,   &topcopy, 0xff00ff00);
+    renderer.set_pixel(p1.x-1, p1.y-1, &topcopy, 0xff00ff00);
+    renderer.set_pixel(p1.x+1, p1.y-1, &topcopy, 0xff00ff00);
+    renderer.set_pixel(p1.x-1, p1.y+1, &topcopy, 0xff00ff00);
+    renderer.set_pixel(p1.x+1, p1.y+1, &topcopy, 0xff00ff00);
+
 
 
     previnput = input;
@@ -126,7 +151,8 @@ void render(float dt)
 
     // RENDER
 
-    screenquad.fill_tex_with_mem((u8*)screen.pixels, screen.width, screen.height);
+    // screenquad.fill_tex_with_mem((u8*)screen.pixels, screen.width, screen.height);
+    screenquad.fill_tex_with_mem((u8*)topcopy.pixels, topcopy.width, topcopy.height);
 
     d3d_clear(0, 0, 0);
     screenquad.render();
@@ -134,6 +160,13 @@ void render(float dt)
     // right.render();
     // front.render();
     d3d_swap();
+
+
+
+    free(toptrace);
+    free(sidetrace);
+    free(fronttrace);
+    free(topcopy.pixels);
 }
 
 void init(int w, int h)

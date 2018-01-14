@@ -77,3 +77,33 @@ void FindBoundryPoints(u32 *img, int iw, int ih, v2i *outList, int maxOut, int *
     }
 
 }
+
+
+float perpdist(v2 a, v2 b, v2 p)
+{
+    float num = absf( (b.y-a.y)*p.x - (b.x-a.x)*p.y + b.x*a.y - b.y*a.x );
+    float den = sqrtf( (b.y-a.y)*(b.y-a.y) + (b.x-a.x)*(b.x-a.x) );
+    return num / den;
+}
+float perpdisti(v2i a, v2i b, v2i p)
+{
+    return perpdist({(float)a.x,(float)a.y}, {(float)b.x,(float)b.y}, {(float)p.x,(float)p.y});
+}
+
+v2i DouglasPeuckerSimplify(v2i *in, int incount, v2i *out, int maxout, int *outcount)
+{
+    float dmax = 0;
+    int imax;
+    for (int i = 0; i < incount; i++)
+    {
+        float d = perpdisti(in[0], in[incount-1], in[i]);
+        if (d > dmax)
+        {
+            dmax = d;
+            imax = i;
+        }
+    }
+
+    return in[imax];
+
+}
