@@ -90,8 +90,13 @@ float perpdisti(v2i a, v2i b, v2i p)
     return perpdist({(float)a.x,(float)a.y}, {(float)b.x,(float)b.y}, {(float)p.x,(float)p.y});
 }
 
-v2i DouglasPeuckerSimplify(v2i *in, int incount, v2i *out, int maxout, int *outcount)
+// note *outcount must be 0 !
+// note in and out cannot be the same memory
+void DouglasPeuckerSimplify(v2i *in, int incount, v2i *out, int *outcount, float threshold)
 {
+    if (incount <= 0) return;
+
+    // find point max dist from line formed by start/end points
     float dmax = 0;
     int imax;
     for (int i = 0; i < incount; i++)
@@ -104,6 +109,20 @@ v2i DouglasPeuckerSimplify(v2i *in, int incount, v2i *out, int maxout, int *outc
         }
     }
 
-    return in[imax];
+    // recurse if distance is too large
+    if (dmax > threshold)
+    {
+        v2i *seg1 = in;
+        int seg1count = imax;
+        DouglasPeuckerSimplify(seg1, seg1count, out, outcount, threshold);
 
+        v2i *seg2 = in+imax;
+        int seg2count = incount-imax;
+        DouglasPeuckerSimplify(seg2, seg2count, out, outcount, threshold);
+    }
+    else
+    {
+        out[(*outcount)++] = in[0];
+        out[(*outcount)++] = in[incount-1];
+    }
 }

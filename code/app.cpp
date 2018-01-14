@@ -124,25 +124,18 @@ void render(float dt)
     // for (int i = 0; i < fronttracecount; i++) { renderer.set_pixel(fronttrace[i].x, fronttrace[i].y, &front, 0xff0000ff); }
 
 
-    renderer.set_pixel(toptrace[0].x+0, toptrace[0].y+0, &topcopy, 0xff0000ff);
-    renderer.set_pixel(toptrace[0].x-1, toptrace[0].y-1, &topcopy, 0xff0000ff);
-    renderer.set_pixel(toptrace[0].x+1, toptrace[0].y-1, &topcopy, 0xff0000ff);
-    renderer.set_pixel(toptrace[0].x-1, toptrace[0].y+1, &topcopy, 0xff0000ff);
-    renderer.set_pixel(toptrace[0].x+1, toptrace[0].y+1, &topcopy, 0xff0000ff);
-
-    renderer.set_pixel(toptrace[toptracecount-1].x+0, toptrace[toptracecount-1].y+0, &topcopy, 0xff00ffff);
-    renderer.set_pixel(toptrace[toptracecount-1].x-1, toptrace[toptracecount-1].y-1, &topcopy, 0xff00ffff);
-    renderer.set_pixel(toptrace[toptracecount-1].x+1, toptrace[toptracecount-1].y-1, &topcopy, 0xff00ffff);
-    renderer.set_pixel(toptrace[toptracecount-1].x-1, toptrace[toptracecount-1].y+1, &topcopy, 0xff00ffff);
-    renderer.set_pixel(toptrace[toptracecount-1].x+1, toptrace[toptracecount-1].y+1, &topcopy, 0xff00ffff);
-
-
-    v2i p1 = DouglasPeuckerSimplify(toptrace, toptracecount, toptrace, toptracecount, &toptracecount);
-    renderer.set_pixel(p1.x,   p1.y,   &topcopy, 0xff00ff00);
-    renderer.set_pixel(p1.x-1, p1.y-1, &topcopy, 0xff00ff00);
-    renderer.set_pixel(p1.x+1, p1.y-1, &topcopy, 0xff00ff00);
-    renderer.set_pixel(p1.x-1, p1.y+1, &topcopy, 0xff00ff00);
-    renderer.set_pixel(p1.x+1, p1.y+1, &topcopy, 0xff00ff00);
+    PRINT("orig count: %i\n", toptracecount);
+    v2i *reducedtrace = (v2i*)malloc(toptracecount * sizeof(v2i));
+    int reducedcount = 0;
+    DouglasPeuckerSimplify(toptrace, toptracecount, reducedtrace, &reducedcount, 2.0f);
+    PRINT("reduced count: %i\n", reducedcount);
+    for (int i = 0; i < reducedcount; i++) {
+        renderer.set_pixel(reducedtrace[i].x, reducedtrace[i].y, &topcopy, 0xff00ff00);
+        renderer.set_pixel(reducedtrace[i].x-1, reducedtrace[i].y-1, &topcopy, 0xff00ff00);
+        renderer.set_pixel(reducedtrace[i].x+1, reducedtrace[i].y-1, &topcopy, 0xff00ff00);
+        renderer.set_pixel(reducedtrace[i].x-1, reducedtrace[i].y+1, &topcopy, 0xff00ff00);
+        renderer.set_pixel(reducedtrace[i].x+1, reducedtrace[i].y+1, &topcopy, 0xff00ff00);
+    }
 
 
 
